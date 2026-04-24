@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Склад — Приёмка</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Unbounded:wght@400;700;900&display=swap');
 
@@ -24,58 +25,57 @@
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
   html, body {
-    width: 100%;
-    overflow-x: hidden;
-    background: var(--bg);
-    color: var(--text);
+    width: 100%; overflow-x: hidden;
+    background: var(--bg); color: var(--text);
     font-family: 'Space Mono', monospace;
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
+    min-height: 100dvh; display: flex; flex-direction: column;
   }
 
   header {
-    padding: 14px 16px 10px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    padding: 14px 16px 0;
     background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-top {
+    display: flex; align-items: center; gap: 10px; padding-bottom: 12px;
   }
 
   .logo-mark {
-    width: 32px; height: 32px;
-    background: var(--accent);
+    width: 32px; height: 32px; background: var(--accent);
     display: flex; align-items: center; justify-content: center;
-    font-family: 'Unbounded', sans-serif;
-    font-weight: 900; font-size: 12px; color: #000;
+    font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: 12px; color: #000;
     flex-shrink: 0;
   }
 
-  .header-text h1 {
-    font-family: 'Unbounded', sans-serif;
-    font-size: 11px; font-weight: 700;
-    letter-spacing: 0.05em;
+  .header-text h1 { font-family: 'Unbounded', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; }
+  .header-text p { font-size: 9px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
+
+  /* Tabs */
+  .tabs { display: flex; }
+
+  .tab {
+    flex: 1; padding: 10px 8px; text-align: center;
+    font-family: 'Unbounded', sans-serif; font-size: 9px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer;
+    border-top: 2px solid transparent;
+    transition: all 0.15s;
   }
 
-  .header-text p {
-    font-size: 9px; color: var(--muted);
-    letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px;
-  }
+  .tab.active { color: var(--accent); border-top-color: var(--accent); }
+
+  /* Pages */
+  .page { display: none; flex: 1; flex-direction: column; }
+  .page.active { display: flex; }
 
   .main { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 10px; width: 100%; }
 
-  /* Block base */
-  .block {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    width: 100%;
-    overflow: hidden;
-  }
+  /* Blocks */
+  .block { background: var(--surface); border: 1px solid var(--border); width: 100%; overflow: hidden; }
 
   .block-label {
-    padding: 9px 12px;
-    font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 9px 12px; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
     color: var(--muted); border-bottom: 1px solid var(--border);
     display: flex; align-items: center; gap: 8px;
   }
@@ -90,180 +90,119 @@
   .scan-btn {
     width: 100%; padding: 16px;
     background: var(--accent); color: #000; border: none;
-    font-family: 'Unbounded', sans-serif;
-    font-size: 13px; font-weight: 700; letter-spacing: 0.06em;
-    cursor: pointer;
+    font-family: 'Unbounded', sans-serif; font-size: 13px; font-weight: 700;
+    letter-spacing: 0.06em; cursor: pointer;
   }
-
   .scan-btn.stop { background: var(--border); color: var(--muted); }
 
-  /* Status */
-  .status-line {
-    padding: 10px 12px; font-size: 11px; color: var(--muted);
-    text-align: center; display: none; width: 100%;
-  }
+  .status-line { padding: 10px 12px; font-size: 11px; color: var(--muted); text-align: center; display: none; width: 100%; }
   .status-line.visible { display: block; }
   .status-line.searching { color: var(--accent); }
 
   /* Found card */
-  .found-card {
-    display: none; background: var(--surface);
-    border: 1px solid var(--warn); width: 100%;
-    animation: fadeIn 0.2s ease;
-  }
+  .found-card { display: none; background: var(--surface); border: 1px solid var(--warn); width: 100%; animation: fadeIn 0.2s ease; }
   .found-card.visible { display: block; }
   @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
 
-  .found-header {
-    padding: 10px 12px; background: #1a1000;
-    border-bottom: 1px solid var(--warn);
-    font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--warn);
-  }
+  .found-header { padding: 10px 12px; background: #1a1000; border-bottom: 1px solid var(--warn); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--warn); }
 
   .found-info { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
-
   .found-row { display: flex; flex-direction: column; gap: 3px; }
-
-  .found-key {
-    font-size: 9px; color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.08em;
-  }
-
+  .found-key { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
   .found-val { font-size: 16px; color: var(--text); font-weight: 700; word-break: break-all; }
   .found-val.article { color: var(--accent); font-family: 'Unbounded', sans-serif; font-size: 15px; }
 
-  .qty-edit {
-    border-top: 1px solid var(--border);
-    padding: 12px; display: flex; flex-direction: column; gap: 8px;
-  }
+  .qty-edit { border-top: 1px solid var(--border); padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .qty-edit-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
 
-  .qty-edit-label {
-    font-size: 9px; color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.08em;
-  }
+  .qty-row { display: flex; gap: 8px; align-items: center; width: 100%; }
 
-  .qty-row {
-    display: flex; gap: 8px; align-items: center; width: 100%;
-  }
-
-  .qty-btn {
-    width: 52px; height: 52px; flex-shrink: 0;
-    background: var(--border); border: none;
-    color: var(--text); font-size: 24px;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-  }
+  .qty-btn { width: 52px; height: 52px; flex-shrink: 0; background: var(--border); border: none; color: var(--text); font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
   .qty-btn:active { background: #444; }
 
-  .qty-input {
-    flex: 1; min-width: 0;
-    background: var(--bg); border: 1px solid var(--warn);
-    color: var(--warn); font-family: 'Unbounded', sans-serif;
-    font-size: 26px; font-weight: 700;
-    padding: 8px; text-align: center;
-    outline: none; -webkit-appearance: none; border-radius: 0;
-    width: 100%;
-  }
+  .qty-input { flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--warn); color: var(--warn); font-family: 'Unbounded', sans-serif; font-size: 26px; font-weight: 700; padding: 8px; text-align: center; outline: none; -webkit-appearance: none; border-radius: 0; width: 100%; }
 
-  .btn-col {
-    display: flex; flex-direction: column; gap: 8px;
-    padding: 0 12px 12px;
-  }
+  .btn-col { display: flex; flex-direction: column; gap: 8px; padding: 0 12px 12px; }
 
-  .btn-update {
-    width: 100%; padding: 16px;
-    background: var(--warn); color: #000; border: none;
-    font-family: 'Unbounded', sans-serif;
-    font-size: 12px; font-weight: 700; letter-spacing: 0.06em;
-    cursor: pointer;
-  }
+  .btn-update { width: 100%; padding: 16px; background: var(--warn); color: #000; border: none; font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; cursor: pointer; }
   .btn-update:active { background: #cc8800; }
 
-  .btn-new {
-    width: 100%; padding: 14px;
-    background: transparent; color: var(--muted);
-    border: 1px solid var(--border);
-    font-family: 'Unbounded', sans-serif;
-    font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
-    cursor: pointer;
-  }
+  .btn-new { width: 100%; padding: 14px; background: transparent; color: var(--muted); border: 1px solid var(--border); font-family: 'Unbounded', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; cursor: pointer; }
   .btn-new:active { background: var(--border); }
 
   /* Form */
-  .form-block {
-    display: none; background: var(--surface);
-    border: 1px solid var(--border); width: 100%;
-  }
+  .form-block { display: none; background: var(--surface); border: 1px solid var(--border); width: 100%; }
   .form-block.visible { display: block; }
 
   .fields { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
-
   .field { display: flex; flex-direction: column; gap: 4px; }
-
-  .field label {
-    font-size: 9px; color: var(--muted);
-    letter-spacing: 0.1em; text-transform: uppercase;
-  }
-
-  .field input {
-    background: var(--bg); border: 1px solid var(--border);
-    color: var(--text); font-family: 'Space Mono', monospace;
-    font-size: 15px; padding: 12px;
-    outline: none; -webkit-appearance: none; border-radius: 0;
-    width: 100%;
-  }
+  .field label { font-size: 9px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+  .field input { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'Space Mono', monospace; font-size: 15px; padding: 12px; outline: none; -webkit-appearance: none; border-radius: 0; width: 100%; }
   .field input:focus { border-color: var(--accent); }
   .field input.filled { color: var(--accent2); }
 
   .new-qty-row { display: flex; gap: 8px; align-items: center; width: 100%; }
-  .new-qty-input {
-    flex: 1; min-width: 0;
-    background: var(--bg); border: 1px solid var(--border);
-    color: var(--text); font-family: 'Space Mono', monospace;
-    font-size: 20px; font-weight: 700;
-    padding: 12px; text-align: center;
-    outline: none; -webkit-appearance: none; border-radius: 0;
-  }
+  .new-qty-input { flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; padding: 12px; text-align: center; outline: none; -webkit-appearance: none; border-radius: 0; }
   .new-qty-input:focus { border-color: var(--accent); }
 
-  .submit-btn {
-    width: 100%; padding: 18px;
-    background: var(--surface); color: var(--accent);
-    border: 1px solid var(--accent);
-    font-family: 'Unbounded', sans-serif;
-    font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
-    cursor: pointer; margin-top: 4px;
-  }
+  .submit-btn { width: 100%; padding: 18px; background: var(--surface); color: var(--accent); border: 1px solid var(--accent); font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; cursor: pointer; }
   .submit-btn:active { background: var(--accent); color: #000; }
   .submit-btn:disabled { border-color: var(--border); color: var(--muted); }
 
-  /* Config */
-  .config-toggle {
-    width: 100%; padding: 10px 12px;
-    background: none; border: none; color: var(--muted);
-    font-family: 'Space Mono', monospace;
-    font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
-    text-align: left; cursor: pointer;
-    display: flex; align-items: center; gap: 8px;
+  /* ── ТОВАРЫ PAGE ── */
+  .art-field { display: flex; flex-direction: column; gap: 4px; }
+  .art-field label { font-size: 9px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+  .art-field input {
+    background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); font-family: 'Space Mono', monospace;
+    font-size: 15px; padding: 12px; outline: none;
+    -webkit-appearance: none; border-radius: 0; width: 100%;
+    transition: border-color 0.15s;
   }
+  .art-field input:focus { border-color: var(--accent); }
+
+  .gen-btn {
+    width: 100%; padding: 16px;
+    background: var(--accent); color: #000; border: none;
+    font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.06em; cursor: pointer;
+  }
+  .gen-btn:active { background: #c8df00; }
+  .gen-btn:disabled { background: var(--border); color: var(--muted); }
+
+  /* QR result */
+  .qr-result { display: none; background: var(--surface); border: 1px solid var(--accent); width: 100%; animation: fadeIn 0.2s ease; }
+  .qr-result.visible { display: block; }
+
+  .qr-result-header { padding: 10px 12px; background: #0d1200; border-bottom: 1px solid var(--accent); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+
+  .qr-center { display: flex; flex-direction: column; align-items: center; padding: 20px 12px 12px; gap: 12px; }
+
+  #qrCanvas { background: #fff; padding: 12px; }
+
+  .qr-label-text { text-align: center; }
+  .qr-art { font-family: 'Unbounded', sans-serif; font-size: 16px; font-weight: 700; color: var(--accent); }
+  .qr-name { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  .qr-actions { display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 0 12px 12px; }
+
+  .save-btn { width: 100%; padding: 14px; background: transparent; color: var(--success); border: 1px solid var(--success); font-family: 'Unbounded', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; cursor: pointer; }
+  .save-btn:active { background: #001a0d; }
+  .save-btn:disabled { border-color: var(--border); color: var(--muted); }
+
+  .print-btn { width: 100%; padding: 14px; background: transparent; color: var(--muted); border: 1px solid var(--border); font-family: 'Unbounded', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; cursor: pointer; }
+  .print-btn:active { background: var(--border); }
+
+  /* Config */
+  .config-toggle { width: 100%; padding: 10px 12px; background: none; border: none; color: var(--muted); font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 8px; }
   .config-toggle::before { content: '▶'; font-size: 8px; transition: transform 0.2s; }
   .config-toggle.open::before { transform: rotate(90deg); }
-
   .config-inner { display: none; padding: 12px; border-top: 1px solid var(--border); }
   .config-inner.open { display: block; }
-  .config-inner input {
-    width: 100%; background: var(--bg); border: 1px solid var(--border);
-    color: var(--text); font-family: 'Space Mono', monospace;
-    font-size: 10px; padding: 8px 10px;
-    outline: none; border-radius: 0;
-  }
+  .config-inner input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'Space Mono', monospace; font-size: 10px; padding: 8px 10px; outline: none; border-radius: 0; }
 
   /* Toast */
-  .toast {
-    position: fixed; bottom: 20px; left: 12px; right: 12px;
-    padding: 14px; font-size: 12px; letter-spacing: 0.04em;
-    display: none; z-index: 100; border-left: 3px solid;
-  }
+  .toast { position: fixed; bottom: 20px; left: 12px; right: 12px; padding: 14px; font-size: 12px; letter-spacing: 0.04em; display: none; z-index: 100; border-left: 3px solid; }
   .toast.success { background: #001a0d; border-color: var(--success); color: var(--success); display: block; }
   .toast.error { background: #1a0000; border-color: var(--error); color: var(--error); display: block; }
 </style>
@@ -271,16 +210,23 @@
 <body>
 
 <header>
-  <div class="logo-mark">VS</div>
-  <div class="header-text">
-    <h1>VISUVA WAREHOUSE</h1>
-    <p>Приёмка товара — MVP</p>
+  <div class="header-top">
+    <div class="logo-mark">VS</div>
+    <div class="header-text">
+      <h1>VISUVA WAREHOUSE</h1>
+      <p>MVP v0.2</p>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" data-page="page-scan">📦 Приёмка</div>
+    <div class="tab" data-page="page-goods">🏷 Товары</div>
   </div>
 </header>
 
+<!-- ══ PAGE: ПРИЁМКА ══ -->
+<div class="page active" id="page-scan">
 <div class="main">
 
-  <!-- Config -->
   <div class="block">
     <button class="config-toggle" id="configToggle">Настройки</button>
     <div class="config-inner" id="configInner">
@@ -289,32 +235,20 @@
     </div>
   </div>
 
-  <!-- Scanner -->
   <div class="block">
     <div class="block-label"><span class="dot" style="background:var(--accent)"></span>Сканер</div>
     <div id="reader"></div>
     <button class="scan-btn" id="scanBtn">▶ ЗАПУСТИТЬ КАМЕРУ</button>
   </div>
 
-  <!-- Status -->
   <div class="status-line" id="statusLine"></div>
 
-  <!-- Found card -->
   <div class="found-card" id="foundCard">
     <div class="found-header">⚠ Артикул найден в таблице</div>
     <div class="found-info">
-      <div class="found-row">
-        <span class="found-key">Артикул</span>
-        <span class="found-val article" id="fArticle"></span>
-      </div>
-      <div class="found-row">
-        <span class="found-key">Название</span>
-        <span class="found-val" id="fName"></span>
-      </div>
-      <div class="found-row">
-        <span class="found-key">Текущее кол-во</span>
-        <span class="found-val" id="fQtyCurrent"></span>
-      </div>
+      <div class="found-row"><span class="found-key">Артикул</span><span class="found-val article" id="fArticle"></span></div>
+      <div class="found-row"><span class="found-key">Название</span><span class="found-val" id="fName"></span></div>
+      <div class="found-row"><span class="found-key">Текущее кол-во</span><span class="found-val" id="fQtyCurrent"></span></div>
     </div>
     <div class="qty-edit">
       <div class="qty-edit-label">Новое количество</div>
@@ -330,18 +264,11 @@
     </div>
   </div>
 
-  <!-- New item form -->
   <div class="form-block" id="formBlock">
     <div class="block-label"><span class="dot" style="background:var(--accent2)"></span>Новый товар</div>
     <div class="fields">
-      <div class="field">
-        <label>Артикул</label>
-        <input type="text" id="article" placeholder="A-001" autocomplete="off">
-      </div>
-      <div class="field">
-        <label>Название</label>
-        <input type="text" id="name" placeholder="Наименование" autocomplete="off">
-      </div>
+      <div class="field"><label>Артикул</label><input type="text" id="article" placeholder="A-001" autocomplete="off"></div>
+      <div class="field"><label>Название</label><input type="text" id="name" placeholder="Наименование" autocomplete="off"></div>
       <div class="field">
         <label>Количество</label>
         <div class="new-qty-row">
@@ -357,25 +284,66 @@
   </div>
 
 </div>
+</div>
+
+<!-- ══ PAGE: ТОВАРЫ ══ -->
+<div class="page" id="page-goods">
+<div class="main">
+
+  <div class="block">
+    <div class="block-label"><span class="dot" style="background:var(--accent)"></span>Новый артикул</div>
+    <div class="fields">
+      <div class="art-field"><label>Артикул</label><input type="text" id="gArticle" placeholder="A-001" autocomplete="off"></div>
+      <div class="art-field"><label>Название</label><input type="text" id="gName" placeholder="Наименование товара" autocomplete="off"></div>
+    </div>
+    <div style="padding:0 12px 12px">
+      <button class="gen-btn" id="genBtn">⬛ СГЕНЕРИРОВАТЬ QR</button>
+    </div>
+  </div>
+
+  <div class="qr-result" id="qrResult">
+    <div class="qr-result-header">✓ QR-код готов</div>
+    <div class="qr-center">
+      <div id="qrCanvas"></div>
+      <div class="qr-label-text">
+        <div class="qr-art" id="qrArtLabel"></div>
+        <div class="qr-name" id="qrNameLabel"></div>
+      </div>
+    </div>
+    <div class="qr-actions">
+      <button class="save-btn" id="saveGoodsBtn">↑ СОХРАНИТЬ В ТАБЛИЦУ</button>
+      <button class="print-btn" id="printBtn">🖨 СКАЧАТЬ / ПЕЧАТЬ</button>
+    </div>
+  </div>
+
+</div>
+</div>
 
 <div class="toast" id="toast"></div>
 
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby_5rTCvqLVBPWVAp1RYoWeJmjbstfvu1yLrJJS8PsnRS0zCHurdiaixBU_mJjwjNfy/exec';
 
+  // ── Config ──
   const scriptUrlInput = document.getElementById('scriptUrl');
   scriptUrlInput.value = localStorage.getItem('scriptUrl') || SCRIPT_URL;
-
   const configToggle = document.getElementById('configToggle');
   const configInner = document.getElementById('configInner');
-  configToggle.addEventListener('click', () => {
-    configToggle.classList.toggle('open');
-    configInner.classList.toggle('open');
-  });
+  configToggle.addEventListener('click', () => { configToggle.classList.toggle('open'); configInner.classList.toggle('open'); });
   scriptUrlInput.addEventListener('change', () => localStorage.setItem('scriptUrl', scriptUrlInput.value.trim()));
-
   function getUrl() { return scriptUrlInput.value.trim() || SCRIPT_URL; }
 
+  // ── Tabs ──
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.page).classList.add('active');
+    });
+  });
+
+  // ══ ПРИЁМКА ══
   let foundRow = null;
   let scanner = null, scanning = false;
 
@@ -384,34 +352,22 @@
 
   function startScanner() {
     scanner = new Html5Qrcode("reader");
-    scanner.start(
-      { facingMode: "environment" },
-      { fps: 10, qrbox: { width: 220, height: 160 } },
-      onScanSuccess, () => {}
-    ).then(() => {
-      scanning = true;
-      scanBtn.textContent = '■ ОСТАНОВИТЬ';
-      scanBtn.classList.add('stop');
-    }).catch(err => showToast('Ошибка камеры: ' + err, 'error'));
+    scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 220, height: 160 } }, onScanSuccess, () => {})
+      .then(() => { scanning = true; scanBtn.textContent = '■ ОСТАНОВИТЬ'; scanBtn.classList.add('stop'); })
+      .catch(err => showToast('Ошибка камеры: ' + err, 'error'));
   }
 
   function stopScanner() {
-    if (scanner) {
-      scanner.stop().then(() => {
-        scanner.clear(); scanner = null; scanning = false;
-        scanBtn.textContent = '▶ ЗАПУСТИТЬ КАМЕРУ';
-        scanBtn.classList.remove('stop');
-      });
-    }
+    if (scanner) scanner.stop().then(() => {
+      scanner.clear(); scanner = null; scanning = false;
+      scanBtn.textContent = '▶ ЗАПУСТИТЬ КАМЕРУ'; scanBtn.classList.remove('stop');
+    });
   }
 
   async function onScanSuccess(decodedText) {
     stopScanner();
     let article = decodedText, name = '';
-    if (decodedText.includes('|')) {
-      const parts = decodedText.split('|');
-      article = parts[0].trim(); name = parts[1].trim();
-    }
+    if (decodedText.includes('|')) { const p = decodedText.split('|'); article = p[0].trim(); name = p[1].trim(); }
 
     showStatus('Ищу ' + article + '...', 'searching');
     hideAll();
@@ -420,7 +376,6 @@
       const res = await fetch(getUrl() + '?article=' + encodeURIComponent(article));
       const data = await res.json();
       hideStatus();
-
       if (data.found) {
         foundRow = data.row;
         document.getElementById('fArticle').textContent = data.article;
@@ -450,21 +405,11 @@
     foundRow = null;
   }
 
-  function showStatus(msg, cls) {
-    const s = document.getElementById('statusLine');
-    s.textContent = msg; s.className = 'status-line visible ' + (cls || '');
-  }
-
+  function showStatus(msg, cls) { const s = document.getElementById('statusLine'); s.textContent = msg; s.className = 'status-line visible ' + (cls || ''); }
   function hideStatus() { document.getElementById('statusLine').className = 'status-line'; }
 
-  document.getElementById('fMinus').addEventListener('click', () => {
-    const q = document.getElementById('fQty');
-    if (Number(q.value) > 1) q.value = Number(q.value) - 1;
-  });
-  document.getElementById('fPlus').addEventListener('click', () => {
-    const q = document.getElementById('fQty');
-    q.value = Number(q.value) + 1;
-  });
+  document.getElementById('fMinus').addEventListener('click', () => { const q = document.getElementById('fQty'); if (Number(q.value) > 1) q.value = Number(q.value) - 1; });
+  document.getElementById('fPlus').addEventListener('click', () => { const q = document.getElementById('fQty'); q.value = Number(q.value) + 1; });
 
   document.getElementById('btnUpdate').addEventListener('click', async () => {
     const qty = document.getElementById('fQty').value;
@@ -473,18 +418,11 @@
     const btn = document.getElementById('btnUpdate');
     btn.disabled = true; btn.textContent = '...';
     try {
-      await fetch(getUrl(), {
-        method: 'POST', mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ article, name: name === '—' ? '' : name, qty: Number(qty), row: foundRow })
-      });
+      await fetch(getUrl(), { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ article, name: name === '—' ? '' : name, qty: Number(qty), row: foundRow }) });
       showToast('✓ Обновлено: ' + article + ' → ' + qty + ' шт.', 'success');
       hideAll();
-    } catch(err) {
-      showToast('Ошибка: ' + err.message, 'error');
-    } finally {
-      btn.disabled = false; btn.textContent = '↑ ОБНОВИТЬ';
-    }
+    } catch(err) { showToast('Ошибка: ' + err.message, 'error'); }
+    finally { btn.disabled = false; btn.textContent = '↑ ОБНОВИТЬ'; }
   });
 
   document.getElementById('btnAddNew').addEventListener('click', () => {
@@ -498,14 +436,8 @@
     document.getElementById('formBlock').classList.add('visible');
   });
 
-  document.getElementById('qtyMinus').addEventListener('click', () => {
-    const q = document.getElementById('qty');
-    if (Number(q.value) > 1) q.value = Number(q.value) - 1;
-  });
-  document.getElementById('qtyPlus').addEventListener('click', () => {
-    const q = document.getElementById('qty');
-    q.value = Number(q.value) + 1;
-  });
+  document.getElementById('qtyMinus').addEventListener('click', () => { const q = document.getElementById('qty'); if (Number(q.value) > 1) q.value = Number(q.value) - 1; });
+  document.getElementById('qtyPlus').addEventListener('click', () => { const q = document.getElementById('qty'); q.value = Number(q.value) + 1; });
 
   document.getElementById('submitBtn').addEventListener('click', async () => {
     const article = document.getElementById('article').value.trim();
@@ -515,24 +447,74 @@
     const btn = document.getElementById('submitBtn');
     btn.disabled = true; btn.textContent = '...ОТПРАВКА...';
     try {
-      await fetch(getUrl(), {
-        method: 'POST', mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ article, name, qty: Number(qty) })
-      });
+      await fetch(getUrl(), { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ article, name, qty: Number(qty) }) });
       showToast('✓ Записано: ' + article + ' × ' + qty, 'success');
       hideAll();
       document.getElementById('article').value = '';
       document.getElementById('article').classList.remove('filled');
       document.getElementById('name').value = '';
       document.getElementById('qty').value = 1;
-    } catch(err) {
-      showToast('Ошибка: ' + err.message, 'error');
-    } finally {
-      btn.disabled = false; btn.textContent = '↑ ЗАПИСАТЬ В ТАБЛИЦУ';
-    }
+    } catch(err) { showToast('Ошибка: ' + err.message, 'error'); }
+    finally { btn.disabled = false; btn.textContent = '↑ ЗАПИСАТЬ В ТАБЛИЦУ'; }
   });
 
+  // ══ ТОВАРЫ — QR ГЕНЕРАТОР ══
+  let currentQR = null;
+
+  document.getElementById('genBtn').addEventListener('click', () => {
+    const article = document.getElementById('gArticle').value.trim();
+    const name = document.getElementById('gName').value.trim();
+    if (!article) { showToast('Введи артикул', 'error'); return; }
+
+    // QR содержит "артикул|название"
+    const qrData = name ? article + '|' + name : article;
+
+    // Очищаем старый QR
+    const canvas = document.getElementById('qrCanvas');
+    canvas.innerHTML = '';
+
+    new QRCode(canvas, {
+      text: qrData,
+      width: 220, height: 220,
+      colorDark: '#000000', colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+
+    document.getElementById('qrArtLabel').textContent = article;
+    document.getElementById('qrNameLabel').textContent = name || '';
+    document.getElementById('qrResult').classList.add('visible');
+
+    currentQR = { article, name, qrData };
+  });
+
+  // Сохранить товар в таблицу (лист "Товары")
+  document.getElementById('saveGoodsBtn').addEventListener('click', async () => {
+    if (!currentQR) return;
+    const btn = document.getElementById('saveGoodsBtn');
+    btn.disabled = true; btn.textContent = '...';
+    try {
+      await fetch(getUrl(), {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'goods', article: currentQR.article, name: currentQR.name })
+      });
+      showToast('✓ Товар сохранён: ' + currentQR.article, 'success');
+    } catch(err) { showToast('Ошибка: ' + err.message, 'error'); }
+    finally { btn.disabled = false; btn.textContent = '↑ СОХРАНИТЬ В ТАБЛИЦУ'; }
+  });
+
+  // Скачать QR как картинку
+  document.getElementById('printBtn').addEventListener('click', () => {
+    const img = document.querySelector('#qrCanvas img');
+    if (!img) return;
+    const article = currentQR ? currentQR.article : 'qr';
+    const a = document.createElement('a');
+    a.href = img.src;
+    a.download = 'qr_' + article + '.png';
+    a.click();
+  });
+
+  // ── Toast ──
   function showToast(msg, type) {
     const t = document.getElementById('toast');
     t.textContent = msg; t.className = 'toast ' + type;
