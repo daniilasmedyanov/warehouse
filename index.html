@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Склад — Приёмка</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Unbounded:wght@400;700;900&display=swap');
 
@@ -386,7 +385,7 @@
       } else {
         document.getElementById('article').value = article;
         document.getElementById('article').classList.add('filled');
-        document.getElementById('name').value = name;
+        document.getElementById('name').value = data.name || name;
         document.getElementById('qty').value = 1;
         document.getElementById('formBlock').classList.add('visible');
         if (!name) document.getElementById('name').focus();
@@ -469,16 +468,11 @@
     // QR содержит "артикул|название"
     const qrData = name ? article + '|' + name : article;
 
-    // Очищаем старый QR
+    // Генерируем QR через Google Charts (без библиотек)
     const canvas = document.getElementById('qrCanvas');
-    canvas.innerHTML = '';
+    const qrUrl = 'https://chart.googleapis.com/chart?chs=220x220&cht=qr&chl=' + encodeURIComponent(qrData) + '&choe=UTF-8';
+    canvas.innerHTML = '<img src="' + qrUrl + '" width="220" height="220" style="display:block">';
 
-    new QRCode(canvas, {
-      text: qrData,
-      width: 220, height: 220,
-      colorDark: '#000000', colorLight: '#ffffff',
-      correctLevel: QRCode.CorrectLevel.M
-    });
 
     document.getElementById('qrArtLabel').textContent = article;
     document.getElementById('qrNameLabel').textContent = name || '';
