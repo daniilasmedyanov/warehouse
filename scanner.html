@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Склад — Приёмка</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Unbounded:wght@400;700;900&display=swap');
+
+  :root {
+    --bg: #0d0d0d;
+    --surface: #161616;
+    --border: #2a2a2a;
+    --accent: #e8ff00;
+    --accent2: #ff6b00;
+    --text: #f0f0f0;
+    --muted: #555;
+    --success: #00ff88;
+    --error: #ff3b3b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface);
+  }
+
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 900;
+    font-size: 14px;
+    color: #000;
+    flex-shrink: 0;
+  }
+
+  .header-text h1 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--text);
+  }
+
+  .header-text p {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .main { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+  /* Scanner block */
+  .scan-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .scan-label {
+    padding: 10px 14px;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .scan-label::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    display: block;
+  }
+
+  #reader {
+    width: 100%;
+    background: #000;
+  }
+
+  #reader video { width: 100% !important; }
+  #reader img { display: none !important; }
+
+  .scan-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .scan-btn:active { background: #c8df00; }
+  .scan-btn.stop { background: var(--border); color: var(--muted); }
+  .scan-btn.stop:active { background: #333; }
+
+  /* Result block */
+  .result-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .result-label {
+    padding: 10px 14px;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .result-label::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent2);
+    display: block;
+  }
+
+  .scanned-value {
+    padding: 12px 14px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: 'Unbounded', sans-serif;
+    letter-spacing: 0.04em;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    word-break: break-all;
+  }
+
+  .scanned-value.empty { color: var(--muted); font-size: 12px; font-family: 'Space Mono', monospace; font-weight: 400; }
+
+  /* Form */
+  .form-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .form-label {
+    padding: 10px 14px;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .form-label::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: #888;
+    display: block;
+  }
+
+  .fields { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+
+  .field { display: flex; flex-direction: column; gap: 4px; }
+
+  .field label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .field input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 15px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+    border-radius: 0;
+  }
+
+  .field input:focus { border-color: var(--accent); }
+
+  .field input.filled { border-color: #333; color: var(--accent2); }
+
+  .qty-row { display: flex; gap: 8px; align-items: flex-end; }
+
+  .qty-row .field { flex: 1; }
+
+  .qty-btn {
+    width: 44px; height: 44px;
+    background: var(--border);
+    border: none;
+    color: var(--text);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace;
+    flex-shrink: 0;
+    transition: background 0.1s;
+  }
+
+  .qty-btn:active { background: #444; }
+
+  /* Submit */
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--surface);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    font-family: 'Unbounded', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+
+  .submit-btn:not(:disabled):active {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .submit-btn:disabled {
+    border-color: var(--border);
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 16px; right: 16px;
+    padding: 14px 16px;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    display: none;
+    z-index: 100;
+    border-left: 3px solid;
+  }
+
+  .toast.success {
+    background: #001a0d;
+    border-color: var(--success);
+    color: var(--success);
+    display: block;
+  }
+
+  .toast.error {
+    background: #1a0000;
+    border-color: var(--error);
+    color: var(--error);
+    display: block;
+  }
+
+  /* Config panel */
+  .config-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .config-toggle {
+    width: 100%;
+    padding: 10px 14px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .config-toggle::before {
+    content: '▶';
+    font-size: 8px;
+    transition: transform 0.2s;
+  }
+
+  .config-toggle.open::before { transform: rotate(90deg); }
+
+  .config-inner { display: none; padding: 14px; border-top: 1px solid var(--border); }
+  .config-inner.open { display: block; }
+
+  .config-inner .field input { font-size: 11px; padding: 8px 10px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">VS</div>
+  <div class="header-text">
+    <h1>VISUVA WAREHOUSE</h1>
+    <p>Приёмка товара — MVP</p>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- Config -->
+  <div class="config-block">
+    <button class="config-toggle" id="configToggle">Настройки</button>
+    <div class="config-inner" id="configInner">
+      <div class="field">
+        <label>URL Apps Script Web App</label>
+        <input type="url" id="scriptUrl" placeholder="https://script.google.com/macros/s/..." autocomplete="off">
+      </div>
+    </div>
+  </div>
+
+  <!-- Scanner -->
+  <div class="scan-block">
+    <div class="scan-label">Сканер</div>
+    <div id="reader"></div>
+    <button class="scan-btn" id="scanBtn">▶ ЗАПУСТИТЬ КАМЕРУ</button>
+  </div>
+
+  <!-- Scanned value -->
+  <div class="result-block">
+    <div class="result-label">Считанный код</div>
+    <div class="scanned-value empty" id="scannedDisplay">— жду сканирования —</div>
+  </div>
+
+  <!-- Form -->
+  <div class="form-block">
+    <div class="form-label">Данные товара</div>
+    <div class="fields">
+      <div class="field">
+        <label>Артикул</label>
+        <input type="text" id="article" placeholder="A-001" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Название</label>
+        <input type="text" id="name" placeholder="Наименование товара" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Количество</label>
+        <div class="qty-row">
+          <button class="qty-btn" id="qtyMinus">−</button>
+          <div class="field" style="margin:0">
+            <input type="number" id="qty" value="1" min="1" style="text-align:center">
+          </div>
+          <button class="qty-btn" id="qtyPlus">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="submit-btn" id="submitBtn">↑ ЗАПИСАТЬ В ТАБЛИЦУ</button>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── Config ──
+  const configToggle = document.getElementById('configToggle');
+  const configInner = document.getElementById('configInner');
+  const scriptUrlInput = document.getElementById('scriptUrl');
+
+  // Hardcoded URL
+  const HARDCODED_URL = 'https://script.google.com/macros/s/AKfycby_5rTCvqLVBPWVAp1RYoWeJmjbstfvu1yLrJJS8PsnRS0zCHurdiaixBU_mJjwjNfy/exec';
+  const savedUrl = localStorage.getItem('scriptUrl') || HARDCODED_URL;
+  scriptUrlInput.value = savedUrl;
+
+  configToggle.addEventListener('click', () => {
+    configToggle.classList.toggle('open');
+    configInner.classList.toggle('open');
+  });
+
+  scriptUrlInput.addEventListener('change', () => {
+    localStorage.setItem('scriptUrl', scriptUrlInput.value.trim());
+  });
+
+  // ── Scanner ──
+  const scanBtn = document.getElementById('scanBtn');
+  const scannedDisplay = document.getElementById('scannedDisplay');
+  const articleInput = document.getElementById('article');
+  let scanner = null;
+  let scanning = false;
+
+  scanBtn.addEventListener('click', () => {
+    if (!scanning) startScanner();
+    else stopScanner();
+  });
+
+  function startScanner() {
+    scanner = new Html5Qrcode("reader");
+    scanner.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 240, height: 180 } },
+      onScanSuccess,
+      () => {}
+    ).then(() => {
+      scanning = true;
+      scanBtn.textContent = '■ ОСТАНОВИТЬ';
+      scanBtn.classList.add('stop');
+    }).catch(err => {
+      showToast('Ошибка камеры: ' + err, 'error');
+    });
+  }
+
+  function stopScanner() {
+    if (scanner) {
+      scanner.stop().then(() => {
+        scanner.clear();
+        scanner = null;
+        scanning = false;
+        scanBtn.textContent = '▶ ЗАПУСТИТЬ КАМЕРУ';
+        scanBtn.classList.remove('stop');
+      });
+    }
+  }
+
+  function onScanSuccess(decodedText) {
+    stopScanner();
+    scannedDisplay.textContent = decodedText;
+    scannedDisplay.classList.remove('empty');
+
+    // Парсим: если формат "артикул|название" — разбиваем
+    if (decodedText.includes('|')) {
+      const parts = decodedText.split('|');
+      articleInput.value = parts[0].trim();
+      document.getElementById('name').value = parts[1].trim() || '';
+    } else {
+      // Иначе всё в артикул
+      articleInput.value = decodedText;
+    }
+
+    articleInput.classList.add('filled');
+    // Фокус на название если пустое
+    const nameInput = document.getElementById('name');
+    if (!nameInput.value) nameInput.focus();
+  }
+
+  // ── Qty buttons ──
+  document.getElementById('qtyMinus').addEventListener('click', () => {
+    const q = document.getElementById('qty');
+    if (Number(q.value) > 1) q.value = Number(q.value) - 1;
+  });
+
+  document.getElementById('qtyPlus').addEventListener('click', () => {
+    const q = document.getElementById('qty');
+    q.value = Number(q.value) + 1;
+  });
+
+  // ── Submit ──
+  document.getElementById('submitBtn').addEventListener('click', async () => {
+    const url = scriptUrlInput.value.trim() || localStorage.getItem('scriptUrl') || HARDCODED_URL;
+    const article = articleInput.value.trim();
+    const name = document.getElementById('name').value.trim();
+    const qty = document.getElementById('qty').value;
+
+    if (!url) {
+      showToast('Укажи URL Apps Script в настройках', 'error');
+      configToggle.classList.add('open');
+      configInner.classList.add('open');
+      return;
+    }
+
+    if (!article) {
+      showToast('Артикул не заполнен', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = '...ОТПРАВКА...';
+
+    try {
+      await fetch(url, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ article, name, qty: Number(qty) })
+      });
+
+      showToast(`✓ Записано: ${article} × ${qty}`, 'success');
+      resetForm();
+    } catch (err) {
+      showToast('Ошибка отправки: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '↑ ЗАПИСАТЬ В ТАБЛИЦУ';
+    }
+  });
+
+  function resetForm() {
+    articleInput.value = '';
+    articleInput.classList.remove('filled');
+    document.getElementById('name').value = '';
+    document.getElementById('qty').value = 1;
+    scannedDisplay.textContent = '— жду сканирования —';
+    scannedDisplay.classList.add('empty');
+  }
+
+  // ── Toast ──
+  function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + type;
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => { t.className = 'toast'; }, 3500);
+  }
+</script>
+
+</body>
+</html>
