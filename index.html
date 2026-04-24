@@ -18,6 +18,7 @@
     --muted: #555;
     --success: #00ff88;
     --error: #ff3b3b;
+    --warn: #ffaa00;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -69,14 +70,13 @@
 
   .main { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
 
-  /* Scanner block */
   .scan-block {
     background: var(--surface);
     border: 1px solid var(--border);
     overflow: hidden;
   }
 
-  .scan-label {
+  .block-label {
     padding: 10px 14px;
     font-size: 10px;
     letter-spacing: 0.12em;
@@ -88,18 +88,13 @@
     gap: 8px;
   }
 
-  .scan-label::before {
-    content: '';
+  .block-label .dot {
     width: 6px; height: 6px;
-    background: var(--accent);
     display: block;
+    flex-shrink: 0;
   }
 
-  #reader {
-    width: 100%;
-    background: #000;
-  }
-
+  #reader { width: 100%; background: #000; }
   #reader video { width: 100% !important; }
   #reader img { display: none !important; }
 
@@ -119,72 +114,151 @@
 
   .scan-btn:active { background: #c8df00; }
   .scan-btn.stop { background: var(--border); color: var(--muted); }
-  .scan-btn.stop:active { background: #333; }
 
-  /* Result block */
-  .result-block {
+  /* Found card */
+  .found-card {
+    display: none;
     background: var(--surface);
-    border: 1px solid var(--border);
+    border: 1px solid var(--warn);
+    animation: fadeIn 0.2s ease;
   }
 
-  .result-label {
+  .found-card.visible { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .found-header {
     padding: 10px 14px;
+    background: #1a1000;
+    border-bottom: 1px solid var(--warn);
     font-size: 10px;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--muted);
-    border-bottom: 1px solid var(--border);
+    color: var(--warn);
     display: flex;
     align-items: center;
     gap: 8px;
   }
 
-  .result-label::before {
-    content: '';
-    width: 6px; height: 6px;
-    background: var(--accent2);
-    display: block;
+  .found-info {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
 
-  .scanned-value {
-    padding: 12px 14px;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--accent);
-    font-family: 'Unbounded', sans-serif;
-    letter-spacing: 0.04em;
-    min-height: 50px;
+  .found-row {
     display: flex;
-    align-items: center;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .found-key {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+  }
+
+  .found-val {
+    font-size: 14px;
+    color: var(--text);
+    font-weight: 700;
+    text-align: right;
     word-break: break-all;
   }
 
-  .scanned-value.empty { color: var(--muted); font-size: 12px; font-family: 'Space Mono', monospace; font-weight: 400; }
+  .found-val.article { color: var(--accent); font-family: 'Unbounded', sans-serif; font-size: 13px; }
 
-  /* Form */
+  .qty-edit {
+    border-top: 1px solid var(--border);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .qty-edit label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .qty-row { display: flex; gap: 8px; align-items: center; }
+
+  .qty-btn {
+    width: 44px; height: 44px;
+    background: var(--border);
+    border: none;
+    color: var(--text);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.1s;
+  }
+
+  .qty-btn:active { background: #444; }
+
+  .qty-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--warn);
+    color: var(--warn);
+    font-family: 'Unbounded', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    padding: 8px 12px;
+    text-align: center;
+    outline: none;
+    -webkit-appearance: none;
+    border-radius: 0;
+  }
+
+  .btn-row { display: flex; gap: 8px; padding: 0 14px 14px; }
+
+  .btn-update {
+    flex: 1;
+    padding: 14px;
+    background: var(--warn);
+    color: #000;
+    border: none;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-update:active { background: #cc8800; }
+
+  .btn-new {
+    flex: 1;
+    padding: 14px;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    font-family: 'Unbounded', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+  }
+
+  .btn-new:active { background: var(--border); }
+
+  /* New item form */
   .form-block {
+    display: none;
     background: var(--surface);
     border: 1px solid var(--border);
   }
 
-  .form-label {
-    padding: 10px 14px;
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .form-label::before {
-    content: '';
-    width: 6px; height: 6px;
-    background: #888;
-    display: block;
-  }
+  .form-block.visible { display: block; }
 
   .fields { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
 
@@ -211,29 +285,11 @@
   }
 
   .field input:focus { border-color: var(--accent); }
-
   .field input.filled { border-color: #333; color: var(--accent2); }
 
-  .qty-row { display: flex; gap: 8px; align-items: flex-end; }
+  .new-qty-row { display: flex; gap: 8px; align-items: flex-end; }
+  .new-qty-row .field { flex: 1; margin: 0; }
 
-  .qty-row .field { flex: 1; }
-
-  .qty-btn {
-    width: 44px; height: 44px;
-    background: var(--border);
-    border: none;
-    color: var(--text);
-    font-size: 20px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Space Mono', monospace;
-    flex-shrink: 0;
-    transition: background 0.1s;
-  }
-
-  .qty-btn:active { background: #444; }
-
-  /* Submit */
   .submit-btn {
     width: 100%;
     padding: 16px;
@@ -249,45 +305,23 @@
     text-transform: uppercase;
   }
 
-  .submit-btn:not(:disabled):active {
-    background: var(--accent);
-    color: #000;
-  }
+  .submit-btn:not(:disabled):active { background: var(--accent); color: #000; }
+  .submit-btn:disabled { border-color: var(--border); color: var(--muted); cursor: not-allowed; }
 
-  .submit-btn:disabled {
-    border-color: var(--border);
+  /* Status line */
+  .status-line {
+    padding: 10px 14px;
+    font-size: 11px;
     color: var(--muted);
-    cursor: not-allowed;
-  }
-
-  /* Toast */
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 16px; right: 16px;
-    padding: 14px 16px;
-    font-size: 12px;
+    text-align: center;
     letter-spacing: 0.05em;
     display: none;
-    z-index: 100;
-    border-left: 3px solid;
   }
 
-  .toast.success {
-    background: #001a0d;
-    border-color: var(--success);
-    color: var(--success);
-    display: block;
-  }
+  .status-line.visible { display: block; }
+  .status-line.searching { color: var(--accent); }
 
-  .toast.error {
-    background: #1a0000;
-    border-color: var(--error);
-    color: var(--error);
-    display: block;
-  }
-
-  /* Config panel */
+  /* Config */
   .config-block {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -310,18 +344,28 @@
     gap: 8px;
   }
 
-  .config-toggle::before {
-    content: '▶';
-    font-size: 8px;
-    transition: transform 0.2s;
-  }
-
+  .config-toggle::before { content: '▶'; font-size: 8px; transition: transform 0.2s; }
   .config-toggle.open::before { transform: rotate(90deg); }
 
   .config-inner { display: none; padding: 14px; border-top: 1px solid var(--border); }
   .config-inner.open { display: block; }
-
   .config-inner .field input { font-size: 11px; padding: 8px 10px; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 16px; right: 16px;
+    padding: 14px 16px;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    display: none;
+    z-index: 100;
+    border-left: 3px solid;
+  }
+
+  .toast.success { background: #001a0d; border-color: var(--success); color: var(--success); display: block; }
+  .toast.error { background: #1a0000; border-color: var(--error); color: var(--error); display: block; }
 </style>
 </head>
 <body>
@@ -342,27 +386,55 @@
     <div class="config-inner" id="configInner">
       <div class="field">
         <label>URL Apps Script Web App</label>
-        <input type="url" id="scriptUrl" placeholder="https://script.google.com/macros/s/..." autocomplete="off">
+        <input type="url" id="scriptUrl" autocomplete="off">
       </div>
     </div>
   </div>
 
   <!-- Scanner -->
   <div class="scan-block">
-    <div class="scan-label">Сканер</div>
+    <div class="block-label"><span class="dot" style="background:var(--accent)"></span>Сканер</div>
     <div id="reader"></div>
     <button class="scan-btn" id="scanBtn">▶ ЗАПУСТИТЬ КАМЕРУ</button>
   </div>
 
-  <!-- Scanned value -->
-  <div class="result-block">
-    <div class="result-label">Считанный код</div>
-    <div class="scanned-value empty" id="scannedDisplay">— жду сканирования —</div>
+  <!-- Status -->
+  <div class="status-line" id="statusLine"></div>
+
+  <!-- Found card -->
+  <div class="found-card" id="foundCard">
+    <div class="found-header">⚠ Артикул найден в таблице</div>
+    <div class="found-info">
+      <div class="found-row">
+        <span class="found-key">Артикул</span>
+        <span class="found-val article" id="fArticle"></span>
+      </div>
+      <div class="found-row">
+        <span class="found-key">Название</span>
+        <span class="found-val" id="fName"></span>
+      </div>
+      <div class="found-row">
+        <span class="found-key">Текущее кол-во</span>
+        <span class="found-val" id="fQtyCurrent"></span>
+      </div>
+    </div>
+    <div class="qty-edit">
+      <label>Новое количество</label>
+      <div class="qty-row">
+        <button class="qty-btn" id="fMinus">−</button>
+        <input type="number" class="qty-input" id="fQty" value="1" min="1">
+        <button class="qty-btn" id="fPlus">+</button>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-update" id="btnUpdate">↑ ОБНОВИТЬ</button>
+      <button class="btn-new" id="btnAddNew">+ НОВАЯ ЗАПИСЬ</button>
+    </div>
   </div>
 
-  <!-- Form -->
-  <div class="form-block">
-    <div class="form-label">Данные товара</div>
+  <!-- New item form -->
+  <div class="form-block" id="formBlock">
+    <div class="block-label"><span class="dot" style="background:var(--accent2)"></span>Новый товар</div>
     <div class="fields">
       <div class="field">
         <label>Артикул</label>
@@ -374,174 +446,223 @@
       </div>
       <div class="field">
         <label>Количество</label>
-        <div class="qty-row">
+        <div class="new-qty-row">
           <button class="qty-btn" id="qtyMinus">−</button>
-          <div class="field" style="margin:0">
+          <div class="field">
             <input type="number" id="qty" value="1" min="1" style="text-align:center">
           </div>
           <button class="qty-btn" id="qtyPlus">+</button>
         </div>
       </div>
     </div>
+    <button class="submit-btn" id="submitBtn">↑ ЗАПИСАТЬ В ТАБЛИЦУ</button>
   </div>
-
-  <button class="submit-btn" id="submitBtn">↑ ЗАПИСАТЬ В ТАБЛИЦУ</button>
 
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-  // ── Config ──
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby_5rTCvqLVBPWVAp1RYoWeJmjbstfvu1yLrJJS8PsnRS0zCHurdiaixBU_mJjwjNfy/exec';
+
+  // Config
   const configToggle = document.getElementById('configToggle');
   const configInner = document.getElementById('configInner');
   const scriptUrlInput = document.getElementById('scriptUrl');
-
-  // Hardcoded URL
-  const HARDCODED_URL = 'https://script.google.com/macros/s/AKfycby_5rTCvqLVBPWVAp1RYoWeJmjbstfvu1yLrJJS8PsnRS0zCHurdiaixBU_mJjwjNfy/exec';
-  const savedUrl = localStorage.getItem('scriptUrl') || HARDCODED_URL;
-  scriptUrlInput.value = savedUrl;
-
+  scriptUrlInput.value = localStorage.getItem('scriptUrl') || SCRIPT_URL;
   configToggle.addEventListener('click', () => {
     configToggle.classList.toggle('open');
     configInner.classList.toggle('open');
   });
+  scriptUrlInput.addEventListener('change', () => localStorage.setItem('scriptUrl', scriptUrlInput.value.trim()));
 
-  scriptUrlInput.addEventListener('change', () => {
-    localStorage.setItem('scriptUrl', scriptUrlInput.value.trim());
-  });
+  function getUrl() { return scriptUrlInput.value.trim() || SCRIPT_URL; }
 
-  // ── Scanner ──
+  // State
+  let foundRow = null;
+
+  // Scanner
   const scanBtn = document.getElementById('scanBtn');
-  const scannedDisplay = document.getElementById('scannedDisplay');
-  const articleInput = document.getElementById('article');
-  let scanner = null;
-  let scanning = false;
+  let scanner = null, scanning = false;
 
-  scanBtn.addEventListener('click', () => {
-    if (!scanning) startScanner();
-    else stopScanner();
-  });
+  scanBtn.addEventListener('click', () => scanning ? stopScanner() : startScanner());
 
   function startScanner() {
     scanner = new Html5Qrcode("reader");
     scanner.start(
       { facingMode: "environment" },
       { fps: 10, qrbox: { width: 240, height: 180 } },
-      onScanSuccess,
-      () => {}
+      onScanSuccess, () => {}
     ).then(() => {
       scanning = true;
       scanBtn.textContent = '■ ОСТАНОВИТЬ';
       scanBtn.classList.add('stop');
-    }).catch(err => {
-      showToast('Ошибка камеры: ' + err, 'error');
-    });
+    }).catch(err => showToast('Ошибка камеры: ' + err, 'error'));
   }
 
   function stopScanner() {
     if (scanner) {
       scanner.stop().then(() => {
-        scanner.clear();
-        scanner = null;
-        scanning = false;
+        scanner.clear(); scanner = null; scanning = false;
         scanBtn.textContent = '▶ ЗАПУСТИТЬ КАМЕРУ';
         scanBtn.classList.remove('stop');
       });
     }
   }
 
-  function onScanSuccess(decodedText) {
+  async function onScanSuccess(decodedText) {
     stopScanner();
-    scannedDisplay.textContent = decodedText;
-    scannedDisplay.classList.remove('empty');
 
-    // Парсим: если формат "артикул|название" — разбиваем
+    // Парсим код
+    let article = decodedText, name = '';
     if (decodedText.includes('|')) {
       const parts = decodedText.split('|');
-      articleInput.value = parts[0].trim();
-      document.getElementById('name').value = parts[1].trim() || '';
-    } else {
-      // Иначе всё в артикул
-      articleInput.value = decodedText;
+      article = parts[0].trim();
+      name = parts[1].trim();
     }
 
-    articleInput.classList.add('filled');
-    // Фокус на название если пустое
-    const nameInput = document.getElementById('name');
-    if (!nameInput.value) nameInput.focus();
+    // Показываем статус поиска
+    showStatus('Ищу артикул ' + article + '...', 'searching');
+    hideAll();
+
+    try {
+      const res = await fetch(getUrl() + '?article=' + encodeURIComponent(article));
+      const data = await res.json();
+
+      hideStatus();
+
+      if (data.found) {
+        // Показываем карточку найденного
+        foundRow = data.row;
+        document.getElementById('fArticle').textContent = data.article;
+        document.getElementById('fName').textContent = data.name || '—';
+        document.getElementById('fQtyCurrent').textContent = data.qty;
+        document.getElementById('fQty').value = data.qty;
+        document.getElementById('foundCard').classList.add('visible');
+      } else {
+        // Показываем форму нового
+        document.getElementById('article').value = article;
+        document.getElementById('article').classList.add('filled');
+        document.getElementById('name').value = name;
+        document.getElementById('qty').value = 1;
+        document.getElementById('formBlock').classList.add('visible');
+        if (!name) document.getElementById('name').focus();
+      }
+    } catch(err) {
+      hideStatus();
+      // На ошибке поиска — просто показываем форму
+      document.getElementById('article').value = article;
+      document.getElementById('name').value = name;
+      document.getElementById('formBlock').classList.add('visible');
+    }
   }
 
-  // ── Qty buttons ──
+  function hideAll() {
+    document.getElementById('foundCard').classList.remove('visible');
+    document.getElementById('formBlock').classList.remove('visible');
+    foundRow = null;
+  }
+
+  function showStatus(msg, cls) {
+    const s = document.getElementById('statusLine');
+    s.textContent = msg;
+    s.className = 'status-line visible ' + (cls || '');
+  }
+
+  function hideStatus() {
+    document.getElementById('statusLine').className = 'status-line';
+  }
+
+  // Found card — qty buttons
+  document.getElementById('fMinus').addEventListener('click', () => {
+    const q = document.getElementById('fQty');
+    if (Number(q.value) > 1) q.value = Number(q.value) - 1;
+  });
+  document.getElementById('fPlus').addEventListener('click', () => {
+    const q = document.getElementById('fQty');
+    q.value = Number(q.value) + 1;
+  });
+
+  // Update existing
+  document.getElementById('btnUpdate').addEventListener('click', async () => {
+    const qty = document.getElementById('fQty').value;
+    const article = document.getElementById('fArticle').textContent;
+    const name = document.getElementById('fName').textContent;
+    const btn = document.getElementById('btnUpdate');
+    btn.disabled = true; btn.textContent = '...';
+
+    try {
+      await fetch(getUrl(), {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ article, name: name === '—' ? '' : name, qty: Number(qty), row: foundRow })
+      });
+      showToast('✓ Обновлено: ' + article + ' → ' + qty + ' шт.', 'success');
+      hideAll();
+    } catch(err) {
+      showToast('Ошибка: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = '↑ ОБНОВИТЬ';
+    }
+  });
+
+  // Add as new record anyway
+  document.getElementById('btnAddNew').addEventListener('click', () => {
+    const article = document.getElementById('fArticle').textContent;
+    const name = document.getElementById('fName').textContent;
+    const qty = document.getElementById('fQty').value;
+    hideAll();
+    document.getElementById('article').value = article;
+    document.getElementById('name').value = name === '—' ? '' : name;
+    document.getElementById('qty').value = qty;
+    document.getElementById('formBlock').classList.add('visible');
+  });
+
+  // New form qty
   document.getElementById('qtyMinus').addEventListener('click', () => {
     const q = document.getElementById('qty');
     if (Number(q.value) > 1) q.value = Number(q.value) - 1;
   });
-
   document.getElementById('qtyPlus').addEventListener('click', () => {
     const q = document.getElementById('qty');
     q.value = Number(q.value) + 1;
   });
 
-  // ── Submit ──
+  // Submit new
   document.getElementById('submitBtn').addEventListener('click', async () => {
-    const url = scriptUrlInput.value.trim() || localStorage.getItem('scriptUrl') || HARDCODED_URL;
-    const article = articleInput.value.trim();
+    const article = document.getElementById('article').value.trim();
     const name = document.getElementById('name').value.trim();
     const qty = document.getElementById('qty').value;
-
-    if (!url) {
-      showToast('Укажи URL Apps Script в настройках', 'error');
-      configToggle.classList.add('open');
-      configInner.classList.add('open');
-      return;
-    }
-
-    if (!article) {
-      showToast('Артикул не заполнен', 'error');
-      return;
-    }
+    if (!article) { showToast('Артикул не заполнен', 'error'); return; }
 
     const btn = document.getElementById('submitBtn');
-    btn.disabled = true;
-    btn.textContent = '...ОТПРАВКА...';
+    btn.disabled = true; btn.textContent = '...ОТПРАВКА...';
 
     try {
-      await fetch(url, {
-        method: 'POST',
-        mode: 'no-cors',
+      await fetch(getUrl(), {
+        method: 'POST', mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ article, name, qty: Number(qty) })
       });
-
-      showToast(`✓ Записано: ${article} × ${qty}`, 'success');
-      resetForm();
-    } catch (err) {
-      showToast('Ошибка отправки: ' + err.message, 'error');
+      showToast('✓ Записано: ' + article + ' × ' + qty, 'success');
+      hideAll();
+      document.getElementById('article').value = '';
+      document.getElementById('article').classList.remove('filled');
+      document.getElementById('name').value = '';
+      document.getElementById('qty').value = 1;
+    } catch(err) {
+      showToast('Ошибка: ' + err.message, 'error');
     } finally {
-      btn.disabled = false;
-      btn.textContent = '↑ ЗАПИСАТЬ В ТАБЛИЦУ';
+      btn.disabled = false; btn.textContent = '↑ ЗАПИСАТЬ В ТАБЛИЦУ';
     }
   });
 
-  function resetForm() {
-    articleInput.value = '';
-    articleInput.classList.remove('filled');
-    document.getElementById('name').value = '';
-    document.getElementById('qty').value = 1;
-    scannedDisplay.textContent = '— жду сканирования —';
-    scannedDisplay.classList.add('empty');
-  }
-
-  // ── Toast ──
   function showToast(msg, type) {
     const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = 'toast ' + type;
+    t.textContent = msg; t.className = 'toast ' + type;
     clearTimeout(t._timer);
     t._timer = setTimeout(() => { t.className = 'toast'; }, 3500);
   }
 </script>
-
 </body>
 </html>
