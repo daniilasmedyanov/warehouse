@@ -23,7 +23,9 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-  body {
+  html, body {
+    width: 100%;
+    overflow-x: hidden;
     background: var(--bg);
     color: var(--text);
     font-family: 'Space Mono', monospace;
@@ -33,337 +35,235 @@
   }
 
   header {
-    padding: 16px 20px 12px;
+    padding: 14px 16px 10px;
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     background: var(--surface);
   }
 
   .logo-mark {
-    width: 36px; height: 36px;
+    width: 32px; height: 32px;
     background: var(--accent);
     display: flex; align-items: center; justify-content: center;
     font-family: 'Unbounded', sans-serif;
-    font-weight: 900;
-    font-size: 14px;
-    color: #000;
+    font-weight: 900; font-size: 12px; color: #000;
     flex-shrink: 0;
   }
 
   .header-text h1 {
     font-family: 'Unbounded', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 11px; font-weight: 700;
     letter-spacing: 0.05em;
-    color: var(--text);
   }
 
   .header-text p {
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-top: 2px;
+    font-size: 9px; color: var(--muted);
+    letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px;
   }
 
-  .main { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .main { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 10px; width: 100%; }
 
-  .scan-block {
+  /* Block base */
+  .block {
     background: var(--surface);
     border: 1px solid var(--border);
+    width: 100%;
     overflow: hidden;
   }
 
   .block-label {
-    padding: 10px 14px;
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    padding: 9px 12px;
+    font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
   }
 
-  .block-label .dot {
-    width: 6px; height: 6px;
-    display: block;
-    flex-shrink: 0;
-  }
+  .dot { width: 6px; height: 6px; flex-shrink: 0; display: block; }
 
+  /* Scanner */
   #reader { width: 100%; background: #000; }
   #reader video { width: 100% !important; }
   #reader img { display: none !important; }
 
   .scan-btn {
-    width: 100%;
-    padding: 14px;
-    background: var(--accent);
-    color: #000;
-    border: none;
+    width: 100%; padding: 16px;
+    background: var(--accent); color: #000; border: none;
     font-family: 'Unbounded', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.06em;
     cursor: pointer;
-    transition: background 0.15s;
   }
 
-  .scan-btn:active { background: #c8df00; }
   .scan-btn.stop { background: var(--border); color: var(--muted); }
+
+  /* Status */
+  .status-line {
+    padding: 10px 12px; font-size: 11px; color: var(--muted);
+    text-align: center; display: none; width: 100%;
+  }
+  .status-line.visible { display: block; }
+  .status-line.searching { color: var(--accent); }
 
   /* Found card */
   .found-card {
-    display: none;
-    background: var(--surface);
-    border: 1px solid var(--warn);
+    display: none; background: var(--surface);
+    border: 1px solid var(--warn); width: 100%;
     animation: fadeIn 0.2s ease;
   }
-
   .found-card.visible { display: block; }
-
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
 
   .found-header {
-    padding: 10px 14px;
-    background: #1a1000;
+    padding: 10px 12px; background: #1a1000;
     border-bottom: 1px solid var(--warn);
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
     color: var(--warn);
-    display: flex;
-    align-items: center;
-    gap: 8px;
   }
 
-  .found-info {
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
+  .found-info { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
 
-  .found-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 8px;
-  }
+  .found-row { display: flex; flex-direction: column; gap: 3px; }
 
   .found-key {
-    font-size: 10px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    flex-shrink: 0;
+    font-size: 9px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.08em;
   }
 
-  .found-val {
-    font-size: 14px;
-    color: var(--text);
-    font-weight: 700;
-    text-align: right;
-    word-break: break-all;
-  }
-
-  .found-val.article { color: var(--accent); font-family: 'Unbounded', sans-serif; font-size: 13px; }
+  .found-val { font-size: 16px; color: var(--text); font-weight: 700; word-break: break-all; }
+  .found-val.article { color: var(--accent); font-family: 'Unbounded', sans-serif; font-size: 15px; }
 
   .qty-edit {
     border-top: 1px solid var(--border);
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    padding: 12px; display: flex; flex-direction: column; gap: 8px;
   }
 
-  .qty-edit label {
-    font-size: 10px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+  .qty-edit-label {
+    font-size: 9px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.08em;
   }
 
-  .qty-row { display: flex; gap: 8px; align-items: center; }
+  .qty-row {
+    display: flex; gap: 8px; align-items: center; width: 100%;
+  }
 
   .qty-btn {
-    width: 44px; height: 44px;
-    background: var(--border);
-    border: none;
-    color: var(--text);
-    font-size: 20px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    transition: background 0.1s;
+    width: 52px; height: 52px; flex-shrink: 0;
+    background: var(--border); border: none;
+    color: var(--text); font-size: 24px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
   }
-
   .qty-btn:active { background: #444; }
 
   .qty-input {
-    flex: 1;
-    background: var(--bg);
-    border: 1px solid var(--warn);
-    color: var(--warn);
-    font-family: 'Unbounded', sans-serif;
-    font-size: 22px;
-    font-weight: 700;
-    padding: 8px 12px;
-    text-align: center;
-    outline: none;
-    -webkit-appearance: none;
-    border-radius: 0;
+    flex: 1; min-width: 0;
+    background: var(--bg); border: 1px solid var(--warn);
+    color: var(--warn); font-family: 'Unbounded', sans-serif;
+    font-size: 26px; font-weight: 700;
+    padding: 8px; text-align: center;
+    outline: none; -webkit-appearance: none; border-radius: 0;
+    width: 100%;
   }
 
-  .btn-row { display: flex; gap: 8px; padding: 0 14px 14px; }
+  .btn-col {
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 0 12px 12px;
+  }
 
   .btn-update {
-    flex: 1;
-    padding: 14px;
-    background: var(--warn);
-    color: #000;
-    border: none;
+    width: 100%; padding: 16px;
+    background: var(--warn); color: #000; border: none;
     font-family: 'Unbounded', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.06em;
     cursor: pointer;
-    transition: background 0.15s;
   }
-
   .btn-update:active { background: #cc8800; }
 
   .btn-new {
-    flex: 1;
-    padding: 14px;
-    background: transparent;
-    color: var(--muted);
+    width: 100%; padding: 14px;
+    background: transparent; color: var(--muted);
     border: 1px solid var(--border);
     font-family: 'Unbounded', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
     cursor: pointer;
   }
-
   .btn-new:active { background: var(--border); }
 
-  /* New item form */
+  /* Form */
   .form-block {
-    display: none;
-    background: var(--surface);
-    border: 1px solid var(--border);
+    display: none; background: var(--surface);
+    border: 1px solid var(--border); width: 100%;
   }
-
   .form-block.visible { display: block; }
 
-  .fields { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .fields { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
 
   .field { display: flex; flex-direction: column; gap: 4px; }
 
   .field label {
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    font-size: 9px; color: var(--muted);
+    letter-spacing: 0.1em; text-transform: uppercase;
   }
 
   .field input {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: 'Space Mono', monospace;
-    font-size: 15px;
-    padding: 10px 12px;
-    outline: none;
-    transition: border-color 0.15s;
-    -webkit-appearance: none;
-    border-radius: 0;
+    background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); font-family: 'Space Mono', monospace;
+    font-size: 15px; padding: 12px;
+    outline: none; -webkit-appearance: none; border-radius: 0;
+    width: 100%;
   }
-
   .field input:focus { border-color: var(--accent); }
-  .field input.filled { border-color: #333; color: var(--accent2); }
+  .field input.filled { color: var(--accent2); }
 
-  .new-qty-row { display: flex; gap: 8px; align-items: flex-end; }
-  .new-qty-row .field { flex: 1; margin: 0; }
+  .new-qty-row { display: flex; gap: 8px; align-items: center; width: 100%; }
+  .new-qty-input {
+    flex: 1; min-width: 0;
+    background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); font-family: 'Space Mono', monospace;
+    font-size: 20px; font-weight: 700;
+    padding: 12px; text-align: center;
+    outline: none; -webkit-appearance: none; border-radius: 0;
+  }
+  .new-qty-input:focus { border-color: var(--accent); }
 
   .submit-btn {
-    width: 100%;
-    padding: 16px;
-    background: var(--surface);
-    color: var(--accent);
+    width: 100%; padding: 18px;
+    background: var(--surface); color: var(--accent);
     border: 1px solid var(--accent);
     font-family: 'Unbounded', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    transition: all 0.15s;
-    text-transform: uppercase;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
+    cursor: pointer; margin-top: 4px;
   }
-
-  .submit-btn:not(:disabled):active { background: var(--accent); color: #000; }
-  .submit-btn:disabled { border-color: var(--border); color: var(--muted); cursor: not-allowed; }
-
-  /* Status line */
-  .status-line {
-    padding: 10px 14px;
-    font-size: 11px;
-    color: var(--muted);
-    text-align: center;
-    letter-spacing: 0.05em;
-    display: none;
-  }
-
-  .status-line.visible { display: block; }
-  .status-line.searching { color: var(--accent); }
+  .submit-btn:active { background: var(--accent); color: #000; }
+  .submit-btn:disabled { border-color: var(--border); color: var(--muted); }
 
   /* Config */
-  .config-block {
-    background: var(--surface);
-    border: 1px solid var(--border);
-  }
-
   .config-toggle {
-    width: 100%;
-    padding: 10px 14px;
-    background: none;
-    border: none;
-    color: var(--muted);
+    width: 100%; padding: 10px 12px;
+    background: none; border: none; color: var(--muted);
     font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-align: left;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+    text-align: left; cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
   }
-
   .config-toggle::before { content: '▶'; font-size: 8px; transition: transform 0.2s; }
   .config-toggle.open::before { transform: rotate(90deg); }
 
-  .config-inner { display: none; padding: 14px; border-top: 1px solid var(--border); }
+  .config-inner { display: none; padding: 12px; border-top: 1px solid var(--border); }
   .config-inner.open { display: block; }
-  .config-inner .field input { font-size: 11px; padding: 8px 10px; }
+  .config-inner input {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); font-family: 'Space Mono', monospace;
+    font-size: 10px; padding: 8px 10px;
+    outline: none; border-radius: 0;
+  }
 
   /* Toast */
   .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 16px; right: 16px;
-    padding: 14px 16px;
-    font-size: 12px;
-    letter-spacing: 0.05em;
-    display: none;
-    z-index: 100;
-    border-left: 3px solid;
+    position: fixed; bottom: 20px; left: 12px; right: 12px;
+    padding: 14px; font-size: 12px; letter-spacing: 0.04em;
+    display: none; z-index: 100; border-left: 3px solid;
   }
-
   .toast.success { background: #001a0d; border-color: var(--success); color: var(--success); display: block; }
   .toast.error { background: #1a0000; border-color: var(--error); color: var(--error); display: block; }
 </style>
@@ -381,18 +281,16 @@
 <div class="main">
 
   <!-- Config -->
-  <div class="config-block">
+  <div class="block">
     <button class="config-toggle" id="configToggle">Настройки</button>
     <div class="config-inner" id="configInner">
-      <div class="field">
-        <label>URL Apps Script Web App</label>
-        <input type="url" id="scriptUrl" autocomplete="off">
-      </div>
+      <label style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:6px">URL Apps Script</label>
+      <input type="url" id="scriptUrl" autocomplete="off">
     </div>
   </div>
 
   <!-- Scanner -->
-  <div class="scan-block">
+  <div class="block">
     <div class="block-label"><span class="dot" style="background:var(--accent)"></span>Сканер</div>
     <div id="reader"></div>
     <button class="scan-btn" id="scanBtn">▶ ЗАПУСТИТЬ КАМЕРУ</button>
@@ -419,16 +317,16 @@
       </div>
     </div>
     <div class="qty-edit">
-      <label>Новое количество</label>
+      <div class="qty-edit-label">Новое количество</div>
       <div class="qty-row">
         <button class="qty-btn" id="fMinus">−</button>
         <input type="number" class="qty-input" id="fQty" value="1" min="1">
         <button class="qty-btn" id="fPlus">+</button>
       </div>
     </div>
-    <div class="btn-row">
+    <div class="btn-col">
       <button class="btn-update" id="btnUpdate">↑ ОБНОВИТЬ</button>
-      <button class="btn-new" id="btnAddNew">+ НОВАЯ ЗАПИСЬ</button>
+      <button class="btn-new" id="btnAddNew">+ ДОБАВИТЬ КАК НОВУЮ ЗАПИСЬ</button>
     </div>
   </div>
 
@@ -442,20 +340,20 @@
       </div>
       <div class="field">
         <label>Название</label>
-        <input type="text" id="name" placeholder="Наименование товара" autocomplete="off">
+        <input type="text" id="name" placeholder="Наименование" autocomplete="off">
       </div>
       <div class="field">
         <label>Количество</label>
         <div class="new-qty-row">
           <button class="qty-btn" id="qtyMinus">−</button>
-          <div class="field">
-            <input type="number" id="qty" value="1" min="1" style="text-align:center">
-          </div>
+          <input type="number" class="new-qty-input" id="qty" value="1" min="1">
           <button class="qty-btn" id="qtyPlus">+</button>
         </div>
       </div>
     </div>
-    <button class="submit-btn" id="submitBtn">↑ ЗАПИСАТЬ В ТАБЛИЦУ</button>
+    <div style="padding:0 12px 12px">
+      <button class="submit-btn" id="submitBtn">↑ ЗАПИСАТЬ В ТАБЛИЦУ</button>
+    </div>
   </div>
 
 </div>
@@ -465,11 +363,11 @@
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby_5rTCvqLVBPWVAp1RYoWeJmjbstfvu1yLrJJS8PsnRS0zCHurdiaixBU_mJjwjNfy/exec';
 
-  // Config
-  const configToggle = document.getElementById('configToggle');
-  const configInner = document.getElementById('configInner');
   const scriptUrlInput = document.getElementById('scriptUrl');
   scriptUrlInput.value = localStorage.getItem('scriptUrl') || SCRIPT_URL;
+
+  const configToggle = document.getElementById('configToggle');
+  const configInner = document.getElementById('configInner');
   configToggle.addEventListener('click', () => {
     configToggle.classList.toggle('open');
     configInner.classList.toggle('open');
@@ -478,20 +376,17 @@
 
   function getUrl() { return scriptUrlInput.value.trim() || SCRIPT_URL; }
 
-  // State
   let foundRow = null;
-
-  // Scanner
-  const scanBtn = document.getElementById('scanBtn');
   let scanner = null, scanning = false;
 
+  const scanBtn = document.getElementById('scanBtn');
   scanBtn.addEventListener('click', () => scanning ? stopScanner() : startScanner());
 
   function startScanner() {
     scanner = new Html5Qrcode("reader");
     scanner.start(
       { facingMode: "environment" },
-      { fps: 10, qrbox: { width: 240, height: 180 } },
+      { fps: 10, qrbox: { width: 220, height: 160 } },
       onScanSuccess, () => {}
     ).then(() => {
       scanning = true;
@@ -512,27 +407,21 @@
 
   async function onScanSuccess(decodedText) {
     stopScanner();
-
-    // Парсим код
     let article = decodedText, name = '';
     if (decodedText.includes('|')) {
       const parts = decodedText.split('|');
-      article = parts[0].trim();
-      name = parts[1].trim();
+      article = parts[0].trim(); name = parts[1].trim();
     }
 
-    // Показываем статус поиска
-    showStatus('Ищу артикул ' + article + '...', 'searching');
+    showStatus('Ищу ' + article + '...', 'searching');
     hideAll();
 
     try {
       const res = await fetch(getUrl() + '?article=' + encodeURIComponent(article));
       const data = await res.json();
-
       hideStatus();
 
       if (data.found) {
-        // Показываем карточку найденного
         foundRow = data.row;
         document.getElementById('fArticle').textContent = data.article;
         document.getElementById('fName').textContent = data.name || '—';
@@ -540,7 +429,6 @@
         document.getElementById('fQty').value = data.qty;
         document.getElementById('foundCard').classList.add('visible');
       } else {
-        // Показываем форму нового
         document.getElementById('article').value = article;
         document.getElementById('article').classList.add('filled');
         document.getElementById('name').value = name;
@@ -550,7 +438,6 @@
       }
     } catch(err) {
       hideStatus();
-      // На ошибке поиска — просто показываем форму
       document.getElementById('article').value = article;
       document.getElementById('name').value = name;
       document.getElementById('formBlock').classList.add('visible');
@@ -565,15 +452,11 @@
 
   function showStatus(msg, cls) {
     const s = document.getElementById('statusLine');
-    s.textContent = msg;
-    s.className = 'status-line visible ' + (cls || '');
+    s.textContent = msg; s.className = 'status-line visible ' + (cls || '');
   }
 
-  function hideStatus() {
-    document.getElementById('statusLine').className = 'status-line';
-  }
+  function hideStatus() { document.getElementById('statusLine').className = 'status-line'; }
 
-  // Found card — qty buttons
   document.getElementById('fMinus').addEventListener('click', () => {
     const q = document.getElementById('fQty');
     if (Number(q.value) > 1) q.value = Number(q.value) - 1;
@@ -583,14 +466,12 @@
     q.value = Number(q.value) + 1;
   });
 
-  // Update existing
   document.getElementById('btnUpdate').addEventListener('click', async () => {
     const qty = document.getElementById('fQty').value;
     const article = document.getElementById('fArticle').textContent;
     const name = document.getElementById('fName').textContent;
     const btn = document.getElementById('btnUpdate');
     btn.disabled = true; btn.textContent = '...';
-
     try {
       await fetch(getUrl(), {
         method: 'POST', mode: 'no-cors',
@@ -606,7 +487,6 @@
     }
   });
 
-  // Add as new record anyway
   document.getElementById('btnAddNew').addEventListener('click', () => {
     const article = document.getElementById('fArticle').textContent;
     const name = document.getElementById('fName').textContent;
@@ -618,7 +498,6 @@
     document.getElementById('formBlock').classList.add('visible');
   });
 
-  // New form qty
   document.getElementById('qtyMinus').addEventListener('click', () => {
     const q = document.getElementById('qty');
     if (Number(q.value) > 1) q.value = Number(q.value) - 1;
@@ -628,16 +507,13 @@
     q.value = Number(q.value) + 1;
   });
 
-  // Submit new
   document.getElementById('submitBtn').addEventListener('click', async () => {
     const article = document.getElementById('article').value.trim();
     const name = document.getElementById('name').value.trim();
     const qty = document.getElementById('qty').value;
     if (!article) { showToast('Артикул не заполнен', 'error'); return; }
-
     const btn = document.getElementById('submitBtn');
     btn.disabled = true; btn.textContent = '...ОТПРАВКА...';
-
     try {
       await fetch(getUrl(), {
         method: 'POST', mode: 'no-cors',
