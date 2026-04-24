@@ -470,7 +470,7 @@
 
     // Генерируем QR через Google Charts (без библиотек)
     const canvas = document.getElementById('qrCanvas');
-    const qrUrl = 'https://chart.googleapis.com/chart?chs=220x220&cht=qr&chl=' + encodeURIComponent(qrData) + '&choe=UTF-8';
+    const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' + encodeURIComponent(qrData);
     canvas.innerHTML = '<img src="' + qrUrl + '" width="220" height="220" style="display:block">';
 
 
